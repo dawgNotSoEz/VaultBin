@@ -1,7 +1,37 @@
-node_modules
-venv
-__pycache__
-.env
+# Python / Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+__pycache__/
 *.pyc
-dist
-.mypy_cache
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# Node / Frontend Dependencies
+node_modules/
+/frontend/node_modules/
+.eslintcache
+dist/
+/frontend/dist/
+.vite-cache/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDEs, Editors & System Files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+.DS_Store
+Thumbs.db
