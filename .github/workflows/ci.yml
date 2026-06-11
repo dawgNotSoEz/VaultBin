@@ -7,10 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Start services
-        run: docker compose up -d
+      - name: Start services (force rebuild)
+        run: docker compose up -d --build
       - name: Wait for backend
-        run: sleep 10   # adjust if needed
+        run: sleep 10
       - name: Run tests
         run: docker compose exec -T backend pytest
       - name: Stop services
