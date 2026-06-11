@@ -157,3 +157,38 @@ async def test_invalid_base64_rejected(client):
         "burn_after_reading": False
     })
     assert res.status_code == 422
+
+@pytest.mark.asyncio
+async def test_password_protected_document(client):
+    # Create a password-protected document
+    res = await client.post("/api/documents", json={
+        "ciphertext": DUMMY_CIPHERTEXT,
+        "iv": DUMMY_IV,
+        "expiry_hours": 1,
+        "burn_after_reading": False,
+        "password": "mypassword",
+        "wrapped_key": "d3JhcHBlZF9rZXk=",
+        "password_salt": "c2FsdF9zdHJpbmc="
+    })
+    assert res.status_code == 201
+    doc_id = res.json()["doc_id"]
+
+    # Get the document without password (should return has_password=True, password_salt)
+    res = await client.get(f"/api/documents/{doc_id}")
+    assert res.status_code == 200
+    doc = res.json()
+    assert doc["has_password"] is True
+    assert doc["password_salt"] == "c2FsdF9zdHJpbmc="
+
+    # Verify wrong password
+    res = await client.post(f"/api/documents/{doc_id}/verify-password", json={
+        "password": "wrongpassword"
+    })
+    assert res.status_code == 403
+
+    # Verify correct password
+    res = await client.post(f"/api/documents/{doc_id}/verify-password", json={
+        "password": "mypassword"
+    })
+    assert res.status_code == 200
+    assert res.json()["wrapped_key"] == "d3JhcHBlZF9rZXk="
