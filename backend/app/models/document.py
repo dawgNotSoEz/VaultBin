@@ -13,6 +13,18 @@ class DocumentCreate(BaseModel):
     wrapped_key: Optional[str] = None       # AES key wrapped with password-derived key
     password_salt: Optional[str] = None     # salt for Argon2id
 
+    @field_validator("ciphertext", "iv", "wrapped_key", "password_salt")
+    @classmethod
+    def must_be_base64_if_present(cls, v, info):
+        if v is None:
+            return v
+        try:
+            # Pads the string and tries to decode – if it fails, it's invalid
+            base64.urlsafe_b64decode(v + "==")
+        except Exception:
+            raise ValueError(f"{info.field_name} must be a valid base64 string")
+        return v
+
 class PasswordVerifyRequest(BaseModel):
     password: str
 
